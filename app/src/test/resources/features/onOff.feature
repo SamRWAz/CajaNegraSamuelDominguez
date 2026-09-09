@@ -1,10 +1,8 @@
 Feature: Yo como tester quiero probar la funcionalidad de interruptor inteligente
-
-  Background:
-    * url 'https://statemachine--maria7221.replit.app/api/'
-
+ 
   Scenario: Verificar el estado del interruptor en un momento dado
-    Given path 'switch/state'
+    Given url 'https://statemachine--maria7221.replit.app/api/'
+    And path 'switch/state'
     And headers { 'Content-Type': 'application/json', 'Accept': 'application/json' }
     When method GET
     Then status 200
@@ -12,34 +10,37 @@ Feature: Yo como tester quiero probar la funcionalidad de interruptor inteligent
 
   @smokeTest
   Scenario: Verificar que el interruptor acepta solicitudes
-    Given path 'switch/state'
+    Given url 'https://statemachine--maria7221.replit.app/api/'
+    And path 'switch/state'
     And headers { 'Content-Type': 'application/json', 'Accept': 'application/json' }
     When method GET
     Then status 200
-    * print 'Get status:', responseStatus
+    * print 'Get status:' , responseStatus
 
   @ignore @doOn
   Scenario: Do Turn On
-    Given path 'switch/on'
-    And headers { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Content-Length': '0' }
-    When method POST
-    Then status 200
-    * print 'Response status when state is Off and do On:', responseStatus
+    Given url 'https://statemachine--maria7221.replit.app/api/'
+    And path 'switch/on'
+    And headers { Content-Type: 'application/json', Accept: 'application/json' }
+    And headers 'Content-Length': '0'
+    When method post
+    * print 'Response status when state is Off and do On :', responseStatus
+    * match responseStatus == 200
     * match response == { state: 'on' }
 
-  @ignore @invalidTransicion @invalidtransicionDoOn
-  Scenario: Do Turn On when already On
-    Given path 'switch/on'
-    And headers { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Content-Length': '0' }
-    When method POST
-    Then status 409
-    * print 'Response status when state is On and do On:', responseStatus
-    * match response contains { error: 'Invalid transition: the switch is already on' }
-
+  @ignore  @invalidTransicion @invalidtransicionDoOn
+  Scenario: Do Turn On
+    Given url 'https://statemachine--maria7221.replit.app/api/'
+    And path 'switch/on'
+    And headers { Content-Type: 'application/json', Accept: 'application/json' }
+    And headers 'Content-Length': '0'
+    When method post
+    * print 'Response status when state is On and do On :', responseStatus
+    * match responseStatus == 400
+    * match response == { error: 'Invalid transition: the switch is already on' }
+  
   @startOn
   Scenario: Verificar que el interruptor pueda encenderse
-    * def getStatus = karate.call('@smokeTest')
-    * def currentState = getStatus.response.state
-    * print 'Estado previo:', currentState
-    * if (currentState == 'off') karate.call('@doOn')
-    * if (currentState == 'on') karate.call('@invalidtransicionDoOn')
+    * def response = call read('@smoketest')
+    * eval if (response.state == 'off') karate.call(read('@doOn'))
+    * eval if (response.state == 'on') karate.call(read('@invalididtrancisionDoON'))
