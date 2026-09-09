@@ -67,21 +67,21 @@ jobs:
         run: |
           echo "-- target dir listing --"
           ls -la target || true
+          ls -la app/target || true
           echo "-- karate reports listing --"
           ls -la target/karate-reports || true
-          echo "-- test results listing --"
-          ls -la target/test-results || true
+          ls -la app/target/karate-reports || true
 
       - name: Upload Karate reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: karate-reports
-          path: target/karate-reports
+          path: "**/karate-reports"
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: target/test-results
+          path: "**/test-results"
